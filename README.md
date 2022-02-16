@@ -1,2 +1,27 @@
 # LEND_lab
-This is the official repository of the LSU Language, Environment and NeuroDevelopment Lab
+This is the official repository of the LSU Language, Environment and NeuroDevelopment Lab directed by Dr. Julie M. Schneider (@juliagoolia28)
+
+## Getting started with Git in Terminal
+1. Install Homebrew ```/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"```
+2. Install git via brew ```brew install git```
+3. Set up your local clone in local terminal (you only need to do this once for the entire 'Lend_lab' repo)
+- `cd` into your local directory where you would like to save the lab repo.
+- Then type:
+```
+git clone https://github.com/juliagoolia28/LEND_lab.git
+```
+- Now you will have a local folder called LEND_lab on the computer.
+- Then type:
+```
+cd ./LEND_lab
+git remote add upstream https://github.com/juliagoolia28/LEND_lab.git
+git remote set-url --push upstream Oops.no.push.to.upstream
+git remote -v
+```
+In the output you will see:
+```
+origin https://github.com/yourname/LEND_lab.git (fetch)
+origin https://github.com/yourname/LEND_lab.git (push)
+upstream https://github.com/juliagoolia28/LEND_lab.git (fetch)
+upstream	Oops.no.push.to.upstream (push)
+```

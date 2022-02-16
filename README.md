@@ -25,3 +25,7 @@ origin https://github.com/yourname/LEND_lab.git (push)
 upstream https://github.com/juliagoolia28/LEND_lab.git (fetch)
 upstream	Oops.no.push.to.upstream (push)
 ```
+## Setup Personal Access Token (PAT) to authenticate
+To connect Git to Github you have to provide authentication. It will ask for a username and then password, but no longer accepts these credentials. To create a PAT follow these instructions: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+
+When logging in, enter your PAT link for the username and hit 'enter' for password.

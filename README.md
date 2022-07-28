@@ -43,10 +43,10 @@ git config --global core.excludesfile ~/.gitignore_global
 ## How to Add things to Github
 First be sure you are up to date with the main LEND Lab Github account:
 ```
-git checkout master
+git checkout main
 git fetch upstream
-git merge upstream/master
-git push origin master
+git merge upstream/main
+git push origin main
 ```
 
 Now add whatever to your Git that you would like. To commit this to YOUR Github:

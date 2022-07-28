@@ -41,5 +41,19 @@ echo .DS_Store >> ~/.gitignore_global
 git config --global core.excludesfile ~/.gitignore_global
 ```
 ## How to Add things to Github
+First be sure you are up to date with the main LEND Lab Github account:
+```
+git checkout master
+git fetch upstream
+git merge upstream/master
+git push origin master
+```
 
-## 
+Now add whatever to your Git that you would like. To commit this to YOUR Github:
+```
+git add new_files
+git commit 
+git push origin branch_name
+```
+
+## Submit Pull Request

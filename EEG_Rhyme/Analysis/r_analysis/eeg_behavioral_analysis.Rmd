@@ -1,0 +1,142 @@
+---
+title: "EEG Rhyme Behavioral Analysis"
+author: "Julie M. Schneider"
+date: '2022-08-11'
+output: html_document
+---
+```{r}
+# Run every time
+library(dplyr)
+library(tidyr)
+library(readr)
+library(tidyverse)
+library(plyr)
+library(rlang)
+library(fs)
+library(readxl)
+library(data.table)
+library(stringr)
+library(readxl)
+```
+## Load individual event files
+### NOTE: Be sure to open the .txt file, delete all header rows and save as a .csv
+```{r}
+file.list <- list.files(path="/Volumes/juschnei/lendlab/projects/EEG_Rhyme/analysis/txtdir",pattern="*_bins.csv", full.names = TRUE)
+
+dt.list <- sapply(file.list, fread, simplify = FALSE, data.table = F)
+
+df <- rbindlist(dt.list, idcol = 'filename')
+df<-subset(df, select = c("filename","V1", "V3", "V5","V10"))
+names(df)[1]<-"ID"
+names(df)[2]<-"trial"
+names(df)[3]<-"code"
+names(df)[4]<-"time"
+names(df)[5]<-"bin"
+
+df$ID<-str_remove(df$ID,"/Volumes/juschnei/lendlab/projects/EEG_Rhyme/analysis/txtdir/eeg_rhyme_")
+df$ID<-str_remove(df$ID, "_bins.csv")
+df$ID<-as.numeric(df$ID)
+```
+
+## Compute whether individuals significantly differed in the number "learned" versus "not learned" during exposure
+```{r}
+## If bin contains 13,15,17 or 19 it was "learned" during exposure
+patterns <- c("13", "15", "17","19")
+learned <- filter(df, grepl(paste(patterns, collapse="|"), bin))
+## If bin contains 14,16,18,20 it was "not learned" during exposure
+patterns2 <- c("14", "16", "18","20")
+notlearned <- filter(df, grepl(paste(patterns2, collapse="|"), bin))
+
+## Count how many trials per person there are for learned versus not learned
+learnedcount<-ddply(learned, .(ID), nrow)
+notlearnedcount<-ddply(notlearned, .(ID), nrow)
+
+t.test(learnedcount$V1,notlearnedcount$V1, paired = TRUE)
+```
+
+## Post-testAnalysis
+### Need to load answer sheet and compare to post-test (need to also load in their order)
+```{r}
+EEG_orders <- read_excel("/Volumes/juschnei/lendlab/projects/EEG_Rhyme/participant_database.xlsx", sheet = "EEG")
+PTans<-read.csv("post_test_answers.csv", header = TRUE)
+
+names(EEG_orders)[1]<-"ID"
+EEG_orders$ID<-str_remove(EEG_orders$ID, "eeg_rhyme_")
+EEG_orders$ID<-as.numeric(EEG_orders$ID)
+
+EEG_orders<-EEG_orders[, c(1,8,9)]
+PT_scoring<-merge(EEG_orders,df, by = "ID")
+PT_scoring$count<-1:nrow(PT_scoring)
+```
+
+## Post test 1 Scoring
+### Identify and extract trials with response; evaluate overall accuracy
+```{r}
+GetIDsAfter = function(x) {
+  v =(x+1)
+}
+
+PT_scoring %>%                        # from your dataset
+  filter(code == 31|code == 30) %>%            # keep rows where b > 1
+  pull(count) %>%                  # get the positions
+  map(GetIDsAfter) %>%      # for each position apply the function
+  unlist() %>%                 # unlist all sets indices
+  unique() -> ids_to_remain    # keep unique ones and save them in a vector
+
+#PT_scoring$backup = PT_scoring$code                  # copy column c as d
+PT_scoring$code[-ids_to_remain] = NA     # put NA to all positions not in our vector
+
+PT_scoring$code <- as.numeric(as.character(PT_scoring$code))
+PT_one<-PT_scoring %>% drop_na(code)
+
+## Important! Check that each person has 15 trials
+count(PT_one, "ID")
+PT_one$count<-ave(PT_one$ID, PT_one$ID, FUN=seq_along)
+
+PTans_one<-PTans %>% filter(Post_test == "1")
+PTans_one$count<-ave(PTans_one$Order, PTans_one$Order, FUN=seq_along)
+
+PT_one<-left_join(PT_one, PTans_one, by=c("Order","count"))
+
+PT_one$accuracy <- ifelse(PT_one$code == PT_one$Correct_response, 1, 0)
+PT_one %>%
+  group_by(ID) %>%
+  summarise_at(vars(accuracy), list(name = mean))
+```
+## Post test 2 Scoring
+```{r}
+PT_scoring<-merge(EEG_orders,df, by = "ID")
+PT_scoring$count<-1:nrow(PT_scoring)
+
+GetIDsAfter = function(x) {
+  v =(x+1)
+}
+
+PT_scoring %>%                        # from your dataset
+  filter(code == 213|code == 214) %>%            # keep rows where b > 1
+  pull(count) %>%                  # get the positions
+  map(GetIDsAfter) %>%      # for each position apply the function
+  unlist() %>%                 # unlist all sets indices
+  unique() -> ids_to_remain    # keep unique ones and save them in a vector
+
+#PT_scoring$backup = PT_scoring$code                  # copy column c as d
+PT_scoring$code[-ids_to_remain] = NA     # put NA to all positions not in our vector
+
+PT_scoring$code <- as.numeric(as.character(PT_scoring$code))
+PT_two<-PT_scoring %>% drop_na(code)
+
+## Important! Check that each person has 15 trials
+count(PT_two, "ID")
+PT_two$count<-ave(PT_two$ID, PT_two$ID, FUN=seq_along)
+
+PTans_two<-PTans %>% filter(Post_test == "2")
+PTans_two$count<-ave(PTans_two$Order, PTans_two$Order, FUN=seq_along)
+
+PT_two<-left_join(PT_two, PTans_two, by=c("Order","count"))
+
+PT_two$accuracy <- ifelse(PT_two$code == PT_two$Correct_response, 1, 0)
+PT_two %>%
+  group_by(ID) %>%
+  summarise_at(vars(accuracy), list(name = mean))
+```
+

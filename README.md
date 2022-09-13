@@ -49,11 +49,21 @@ git merge upstream/main
 git push origin main
 ```
 
-Now add whatever to your Git that you would like. To commit this to YOUR Github:
+Now add whatever to your Git that you would like. To commit this to YOUR Github (see FAQ for ways to modify the below text):
 ```
 git add new_files
-git commit 
+git commit -m "WRITE MESSAGE HERE"
 git push origin branch_name
 ```
+## Last step: Submit Pull Request
 
-## Submit Pull Request
+## FAQ:
+Add all new files to your commit:
+```
+git add -A
+```
+
+Not sure which branch_name is correct? Find out which branch you are on:
+```
+git -branch
+```

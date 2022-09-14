@@ -1,6 +1,6 @@
 clear
 eeglab;
-%% set up file and folders
+%%set up file and folders: Run this every time you re-open matlab
 % establish working directory 
 maindir = '/Volumes/juschnei/lendlab/projects/EEG_Rhyme/data/rawdir/'; %folder that houses the data from the rhyme tasks (exposure, post-test1 and post-test2)
 workdir = '/Volumes/juschnei/lendlab/projects/EEG_Rhyme/analysis/wkdir/'; 
@@ -12,20 +12,22 @@ erpdir = '/Volumes/juschnei/lendlab/projects/EEG_Rhyme/analysis/erpdir/';
 
 lowpass = 30;
 highpass = 0.1;
-epoch_baseline = -200.0; %epoch baseline
-epoch_end = 800.0; %epoch offset
+epoch_baseline = -500.0; %epoch baseline
+epoch_end = 1000.0; %epoch offset
+condition = 'rhyme'; %rhyme or norhyme (NO SPACES), MAKE SURE TO CHANGE DEPENDING ON PARTICIPANT (see participant database)
 
 % establish subject list
 [d,s,r] = xlsread ('subjects.xlsx');
 subject_list = r;
 numsubjects = (length(s));
 
-for s=2:numsubjects %change number of subjects as needed
+%% Preprocessing steps
+% Step 1: load file, filter, referencing
+for s=6:numsubjects %change number of subjects as needed
     
     subject = subject_list{s};
 
-%% Preprocessing steps
-% Step 1: load file, filter, referencing
+
 
     [ALLEEG, EEG, CURRENTSET, ALLCOM] = eeglab;
     eeglab('redraw');
@@ -54,7 +56,7 @@ end
 %% ICA
 %Step 3: Run ICA
 
-for s=1:numsubjects %change number of subjects as needed
+for s=6:numsubjects %change number of subjects as needed
     
     subject = subject_list{s};
 
@@ -84,7 +86,30 @@ end
 
 %% ERP Analysis
 
-for s=4:numsubjects %change number of subjects as needed
+clear
+eeglab;
+%%set up file and folders: Run this every time you re-open matlab
+% establish working directory 
+maindir = '/Volumes/juschnei/lendlab/projects/EEG_Rhyme/data/rawdir/'; %folder that houses the data from the rhyme tasks (exposure, post-test1 and post-test2)
+workdir = '/Volumes/juschnei/lendlab/projects/EEG_Rhyme/analysis/wkdir/'; 
+txtdir = '/Volumes/juschnei/lendlab/projects/EEG_Rhyme/analysis/txtdir/';
+erpdir = '/Volumes/juschnei/lendlab/projects/EEG_Rhyme/analysis/erpdir/';
+
+% establish subject list
+% When analyzing multiple subjects at once, change subject list to correct
+% condition
+
+[d,s,r] = xlsread ('norhyme_subjects.xlsx');
+% [d,s,r] = xlsread ('rhyme_subjects.xlsx');
+subject_list = r;
+numsubjects = (length(s));
+
+epoch_baseline = -500.0; %epoch baseline
+epoch_end = 1000.0; %epoch offset
+condition = 'norhyme'; %rhyme or norhyme (NO SPACES), MAKE SURE TO CHANGE DEPENDING ON PARTICIPANT (see participant database)
+
+
+for s=6 %change number of subjects as needed
     
     subject = subject_list{s};
 
@@ -98,21 +123,43 @@ EEG = pop_loadset('filename',[subject '_ICA_clean.set'],'filepath',workdir);
 EEG  = pop_creabasiceventlist( EEG , 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' }, 'Eventlist', [txtdir [subject '.txt']] ); 
 EEG = eeg_checkset( EEG );
 [ALLEEG, EEG, CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'gui','off'); 
-    
-EEG  = pop_binlister( EEG , 'BDF', [txtdir 'binlist.txt'], 'ExportEL', [txtdir [subject '_binlist.txt']],'ImportEL', [txtdir [subject '.txt']], 'IndexEL',  1, 'SendEL2', 'EEG&Text', 'Voutput', 'EEG' );
+
+EEG  = pop_binlister( EEG , 'BDF', [txtdir filesep 'binlists/' condition '_binlist.txt'], 'IndexEL',  1, 'SendEL2', 'EEG', 'Voutput', 'EEG' ); % GUI: 10-Aug-2022 11:28:45
 [ALLEEG, EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);
     
-EEG = pop_epochbin( EEG , [epoch_baseline  epoch_end],  'pre'); 
+EEG = pop_epochbin( EEG , [epoch_baseline epoch_end],  'pre'); 
 [ALLEEG, EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);
-    
-EEG  = pop_artmwppth( EEG , 'Channel',  [], 'Flag',  1, 'Threshold',  100, 'Twindow', [epoch_baseline epoch_end], 'Windowsize',  200, 'Windowstep',  100 ); 
+
+EEG = pop_exporteegeventlist( EEG , 'Filename', [txtdir subject '_bins.txt'] ); % GUI: 11-Aug-2022 13:27:29
+
+EEG  = pop_artextval( EEG , 'Channel',  [], 'Flag',  1, 'Threshold', [ -75 75], 'Twindow', [epoch_baseline epoch_end] )
+EEG  = pop_artmwppth( EEG , 'Channel',  [], 'Flag',  1, 'Threshold', 75, 'Twindow', [epoch_baseline epoch_end], 'Windowsize',  200, 'Windowstep',  100 ); 
 [ALLEEG, EEG, CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET ,'savenew',[workdir [subject '_epoch_ar.set']],'gui','off'); 
 
 end
 
+%% Editing and Saving binlist
+%{ The binlist is saved in the txtdir in the server (see "setting up files and folders" section for the exact loaction). For later analysis to be completed,
+%you must edit the binlist and save it as a .csv file. Below are the
+%instructions for how to do that correctly: %}
+
+% 1. Open txtdir
+% 2. select [subject_id_bins.txt] and open it as an Excel doc
+% 3. Delete rows 1-46
+% 4. Save the file in the txtdir in a .csv format. 
+
+
 %% Average ERP together
 
+for s=6 %change number of subjects as needed
+    
+    subject = subject_list{s};
+
+     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
+     eeglab('redraw');
+
 EEG = pop_loadset('filename',[subject '_epoch_ar.set'],'filepath',workdir);
-[ALLEEG, EEG, CURRENTSET] = eeg_store( ALLEEG, EEG, 0 );
-ERP = pop_averager( ALLEEG , 'Criterion', 'good', 'DSindex',1, 'ExcludeBoundary', 'on', 'SEM', 'on' );
-ERP = pop_savemyerp(ERP, 'erpname', subject, 'filename', [subject '.erp'], 'filepath', erpdir, 'Warning', 'on'); 
+ERP = pop_averager( EEG , 'Criterion', 'good', 'DSindex',1, 'ExcludeBoundary', 'on', 'SEM', 'on' );
+ERP = pop_savemyerp(ERP, 'erpname', subject, 'filename', [subject '.erp'], 'filepath', [erpdir filesep condition filesep], 'Warning', 'on'); 
+
+end

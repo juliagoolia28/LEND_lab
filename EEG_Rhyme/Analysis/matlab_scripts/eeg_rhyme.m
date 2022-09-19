@@ -9,7 +9,7 @@ erpdir = '/Volumes/juschnei/lendlab/projects/EEG_Rhyme/analysis/erpdir/';
 
 
 % establish parameters
-
+ 
 lowpass = 30;
 highpass = 0.1;
 epoch_baseline = -500.0; %epoch baseline

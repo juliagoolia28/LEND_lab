@@ -14,7 +14,6 @@ lowpass = 30;
 highpass = 0.1;
 epoch_baseline = -500.0; %epoch baseline
 epoch_end = 1000.0; %epoch offset
-condition = 'rhyme'; %rhyme or norhyme (NO SPACES), MAKE SURE TO CHANGE DEPENDING ON PARTICIPANT (see participant database)
 
 % establish subject list
 [d,s,r] = xlsread ('subjects.xlsx');
@@ -23,7 +22,7 @@ numsubjects = (length(s));
 
 %% Preprocessing steps
 % Step 1: load file, filter, referencing
-for s=6:numsubjects %change number of subjects as needed
+for s=8: numsubjects %change number of subjects as needed
     
     subject = subject_list{s};
 
@@ -56,7 +55,7 @@ end
 %% ICA
 %Step 3: Run ICA
 
-for s=6:numsubjects %change number of subjects as needed
+for s=7:numsubjects %change number of subjects as needed
     
     subject = subject_list{s};
 

@@ -6,6 +6,31 @@
 # CTOPP: ctopp_nwr_raw_score, ctopp_nwr_scaled, ctopp_nwr_percent
 
 # rm(list=ls())
+#-----analysis with full dataset-------
+setwd ("~/LEND_lab/SLLIP/analysis/")
+behav_data <- read.csv("merge_behav_data.csv")
+
+behav_data$Child.MLU_z <-as.numeric(scale(behav_data$Child.MLU))
+behav_data$Parent.MLU_z <- as.numeric(scale(behav_data$Parent.MLU))
+behav_data$Child.NTW_z <- as.numeric(scale(behav_data$Child.NTW))
+behav_data$Parent.NTW_z <- as.numeric(scale(behav_data$Parent.NTW))
+behav_data$Child.NDW_z <- as.numeric(scale(behav_data$Child.NDW))
+behav_data$Parent.NDW_z <- as.numeric(scale(behav_data$Parent.NDW))
+
+behav_data$ctopp_nwr_raw_score_z <- as.numeric(scale(behav_data$ctopp_nwr_raw_score))
+behav_data$ctopp_nwr_scaled_z <- as.numeric(scale(behav_data$ctopp_nwr_scaled))
+behav_data$ctopp_nwr_percent_z <- as.numeric(scale(behav_data$ctopp_nwr_percent))
+
+behav_data$chrono_age_z <- as.numeric(scale(behav_data$chrono_age))
+behav_data$Child.utterances_z <- as.numeric(scale(behav_data$Child.utterances))
+behav_data$Parent.utterances_z <- as.numeric(scale(behav_data$Parent.utterances))
+
+par.r.input<-partial.r(data=behav_data, x=c('Child.MLU', 'Parent.MLU', 'Child.NTW','Parent.NTW', 'Child.NDW','Parent.NDW','ctopp_nwr_raw_score'), y=c("chrono_age","Parent.utterances","Child.utterances"))
+lowerMat(par.r.input)
+
+summary(lm(behav_data$ctopp_nwr_scaled_z ~ behav_data$chrono_age_z + behav_data$Parent.NTW_z))
+
+#-----analysis with complete set only (including MRI)----------
 all_data_ind <- read.csv("merge_mri_behav.csv")
 
 
@@ -21,7 +46,7 @@ all_data_ind$ctopp_nwr_raw_score_z <- as.numeric(scale(all_data_ind$ctopp_nwr_ra
 # all_data_ind$ctopp_nwr_scaled_z <- as.numeric(scale(all_data_ind$ctopp_nwr_scaled))
 all_data_ind$ctopp_nwr_percent_z <- as.numeric(scale(all_data_ind$ctopp_nwr_percent))
 
-all_data_ind$participant_age_z <- as.numeric(scale(all_data_ind$participant_age))
+all_data_ind$chrono_age_z <- as.numeric(scale(all_data_ind$chrono_age))
 all_data_ind$Child.utterances_z <- as.numeric(scale(all_data_ind$Child.utterances))
 all_data_ind$Parent.utterances_z <- as.numeric(scale(all_data_ind$Parent.utterances))
 
@@ -35,6 +60,8 @@ all_data_ind$Parent.utterances_z <- as.numeric(scale(all_data_ind$Parent.utteran
 cor_matrx <-cor(all_data_ind[, c('Child.utterances', 'Parent.utterances','Child.MLU', 'Parent.MLU', 'Child.NTW','Parent.NTW', 'Child.NDW','Parent.NDW','ctopp_nwr_raw_score')])
 #cor_matrx_standardized <-cor(all_data_ind[, c('Child.utterances_z', 'Parent.utterances_z','Child.MLU_z', 'Parent.MLU_z', 'Child.NTW_z','Parent.NTW_z', 'Child.NDW_z','Parent.NDW_z','ctopp_nwr_raw_score_z')])
 
+par.r.input<-partial.r(data=all_data_ind, x=c('Child.MLU', 'Parent.MLU', 'Child.NTW','Parent.NTW', 'Child.NDW','Parent.NDW','ctopp_nwr_raw_score'), y=c("chrono_age","Parent.utterances","Child.utterances"))
+lowerMat(par.r.input)
 
 
 #------------- one sample t test --------------------------

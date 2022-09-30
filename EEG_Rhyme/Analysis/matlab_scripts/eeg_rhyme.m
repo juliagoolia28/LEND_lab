@@ -52,6 +52,26 @@ end
 % To scroll through data and remove bad blocks %{ EEGLAB >> Plot >> Channel data (scroll) %}
 % To interpolate bad electrodes %{ EEGLAB >> Tools >> Interpolate electrodes >> Select from data channels %}
         % Note: we are interpolating electrodes sepherically
+
+
+%% Removing unncessary blocks of data
+% this sections removes large chunks of unneeded data
+
+for s=1 %change number of subjects as needed
+    
+    subject = subject_list{s};
+
+    [ALLEEG, EEG, CURRENTSET, ALLCOM] = eeglab;
+    eeglab('redraw');
+
+EEG = pop_loadset ([subject '_fl_rr.set'],workdir);
+[ALLEEG, EEG, CURRENTSET] = eeg_store( ALLEEG, EEG, 0 );
+
+EEG = erplab_deleteTimeSegments(EEG, 0, 3000, 3000); %preserves data 3000ms before and after any event code, all other data is removed.
+
+EEG = pop_saveset( EEG, [workdir subject '_clean1']); %naming scheme chnaged during section development, it will need to be chagned back
+
+end
 %% ICA
 %Step 3: Run ICA
 

@@ -1,3 +1,8 @@
+%% Notes
+% when running by section over long periods of time, MATLAB may not save
+% your variables. You may need to rerun the first section of code.
+
+%%
 clear
 eeglab;
 %%set up file and folders: Run this every time you re-open matlab
@@ -45,19 +50,10 @@ for s=8: numsubjects %change number of subjects as needed
 
     EEG = pop_saveset( EEG, [workdir subject '_fl_rr']);
 end
-%% Removing bad blocks and interpolating bad electrodes
-% Step 2: Manually scroll through the data and interpolate bad
-% channels/reject bad blocks. Save this as subject _clean.set in the
-% working directory
-% To scroll through data and remove bad blocks %{ EEGLAB >> Plot >> Channel data (scroll) %}
-% To interpolate bad electrodes %{ EEGLAB >> Tools >> Interpolate electrodes >> Select from data channels %}
-        % Note: we are interpolating electrodes sepherically
-
-
 %% Removing unncessary blocks of data
 % this sections removes large chunks of unneeded data
 
-for s=1 %change number of subjects as needed
+for s=8:numsubjects %change number of subjects as needed
     
     subject = subject_list{s};
 
@@ -69,9 +65,19 @@ EEG = pop_loadset ([subject '_fl_rr.set'],workdir);
 
 EEG = erplab_deleteTimeSegments(EEG, 0, 3000, 3000); %preserves data 3000ms before and after any event code, all other data is removed.
 
-EEG = pop_saveset( EEG, [workdir subject '_clean1']); %naming scheme chnaged during section development, it will need to be chagned back
-
+EEG = pop_saveset( EEG, [workdir subject '_clean1']); %naming scheme has been changed
 end
+
+%% Removing bad blocks and interpolating bad electrodes
+
+% Step 2: Manually scroll through the data and interpolate bad
+% channels/reject bad blocks. Save this as subject _clean2.set in the
+% working directory
+% To scroll through data: EEGLAB >> Tools >> Plot >> Channel data (scroll) 
+% To interpolate bad electrodes EEGLAB >> Tools >> Interpolate electrodes >> Select from data channels
+        % Note: we are interpolating electrodes sepherically
+
+
 %% ICA
 %Step 3: Run ICA
 
@@ -82,7 +88,7 @@ for s=7:numsubjects %change number of subjects as needed
     [ALLEEG, EEG, CURRENTSET, ALLCOM] = eeglab;
     eeglab('redraw');
 
-EEG = pop_loadset ([subject '_clean.set'],workdir);
+EEG = pop_loadset ([subject '_clean2.set'],workdir); 
 [ALLEEG, EEG, CURRENTSET] = eeg_store( ALLEEG, EEG, 0 );
 
 EEG = pop_runica(EEG, 'icatype', 'runica', 'extended',1,'interrupt','on');

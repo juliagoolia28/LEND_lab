@@ -84,7 +84,7 @@ merge_mri_behav <- merge_mri_behav[merge_mri_behav$subject_ID_numb != 12, ]
 
 write.csv(merge_mri_behav,"merge_mri_behav_28subjects.csv",row.names = FALSE)
 
-
+merge_mri_behav <- read.csv('merge_mri_behav_28subjects.csv')
 ## -----------------------DATA ANALYSIS------------------------------
 
 

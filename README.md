@@ -57,6 +57,15 @@ git push origin branch_name
 ```
 ## Last step: Submit Pull Request
 
+## Working with Jupyter
+To install Jupyter Notebook, following the documentation here: https://jupyter.org/install
+Note that if you have Python 3, this should be pip3
+
+If Jupyter cannot be found, try using this code:
+```
+python3 -m notebook
+```
+
 ## FAQ:
 Add all new files to your commit:
 ```

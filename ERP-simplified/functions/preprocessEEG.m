@@ -66,20 +66,16 @@ for s = subject_start : subject_end
     [ALLEEG, EEG, CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'setname',[subject '_time_fl_rr'],'gui','off');
     EEG = eeg_checkset( EEG );
 
-    % save new dataset
-    EEG = pop_saveset (EEG, [subject '_time_fl_rr'], workdir);
-
-    % load and identify bad channels to reject
-    EEG = pop_loadset([subject '_fl_rr.set'],workdir);
+    %identify bad channels to reject
    [EEG, EEG.reject.indelec] = pop_rejchan(EEG,'elec',[1:EEG.nbchan],'threshold',5,'norm', 'on');
      
    % interpolate bad electrodes
-    EEG = eeg_interp(EEG,EEG.reject.indelec);
+    EEG = eeg_interp(EEG, EEG.reject.indelec);
    
    % create new set
    [ALLEEG, EEG, CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'setname',[subject '_time_fl_rr_interp'],'gui','off');
     EEG = eeg_checkset( EEG );
 
     % save preprocessed dataset
-    EEG = pop_saveset( EEG, [subject '_time_fl_rr_interp'], workdir);
+    EEG = pop_saveset( EEG, 'filename',[subject '_time_fl_rr_interp'],'filepath', workdir);
 end

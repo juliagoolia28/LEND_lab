@@ -60,8 +60,8 @@ lowpass = 30; % can be changed as needed
 highpass = 0.1; % can be changed as needed
 
 % Epochs
-epoch_baseline = -200.00; % can be changed as needed
-epoch_end = 800.00; % can be changed as needed
+epoch_baseline = -500.00; % can be changed as needed
+epoch_end = 1000.00; % can be changed as needed
 
 %% Step 3: Establish subject list
 

@@ -50,9 +50,14 @@ for s = subject_start : subject_end
     % extract epochs
     EEG = pop_epochbin( EEG , [epoch_baseline  epoch_end],  'pre'); 
     [ALLEEG, EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);
+
+    % export event list
+    EEG = pop_exporteegeventlist( EEG , 'Filename', [txtdir subject '_bins.txt'] );
         
     % make epochs with peak activity within window
-    EEG  = pop_artmwppth( EEG , 'Channel',  [], 'Flag',  1, 'Threshold',  100, 'Twindow', [epoch_baseline epoch_end], 'Windowsize',  200, 'Windowstep',  100 ); 
+    EEG  = pop_artextval( EEG , 'Channel',  [], 'Flag',  1, 'Threshold', [ -75 75], 'Twindow', [epoch_baseline epoch_end] );
+    EEG  = pop_artmwppth( EEG , 'Channel',  [], 'Flag',  1, 'Threshold',  100, 'Twindow', ...
+        [epoch_baseline epoch_end], 'Windowsize',  200, 'Windowstep',  100 ); 
     [ALLEEG, EEG, CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET ,'savenew',[workdir [subject '_epoch_ar.set']],'gui','off');
 
 end

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+mkdir reg/false_mat_files
+mv reg/*.mat reg/false_mat_files/ 
+cp $FSLDIR/etc/flirtsch/ident.mat reg/example_func2standard.mat 
+cp $FSLDIR/etc/flirtsch/ident.mat reg/standard2example_func.mat 
+mv reg/standard.nii.gz reg/false_standard.nii.gz
+cp mean_func.nii.gz reg/standard.nii.gz
+updatefeatreg
+
